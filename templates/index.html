@@ -1,13 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskFlow AI</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <h1>🚀 Welcome to TaskFlow AI</h1>
-    <p>My First Flask Project</p>
+<div class="container">
+
+    <header>
+        <h1>🚀 TaskFlow AI</h1>
+        <p>Smart Task Management System</p>
+    </header>
+
+    <section class="cards">
+
+        <div class="card">
+            <h2>📋 Total Tasks</h2>
+            <span>0</span>
+        </div>
+
+        <div class="card">
+            <h2>✅ Completed</h2>
+            <span>0</span>
+        </div>
+
+        <div class="card">
+            <h2>⏳ Pending</h2>
+            <span>0</span>
+        </div>
+
+    </section>
+
+    <button class="add-btn">
+        ➕ Add Task
+    </button>
+
+    <section class="task-section">
+
+        <h2>Your Tasks</h2>
+
+        <div class="task-card">
+
+            <h3>No Tasks Available</h3>
+
+            <p>
+                Click the Add Task button to create your first task.
+            </p>
+
+        </div>
+
+    </section>
+
+</div>
 
 </body>
 </html>
