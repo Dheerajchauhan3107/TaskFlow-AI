@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
 <div class="container">
@@ -20,7 +22,7 @@
 
         <div class="card">
             <h2>📋 Total Tasks</h2>
-            <span>0</span>
+            <span>{{ tasks|length }}</span>
         </div>
 
         <div class="card">
@@ -30,32 +32,69 @@
 
         <div class="card">
             <h2>⏳ Pending</h2>
-            <span>0</span>
+            <span>{{ tasks|length }}</span>
         </div>
 
     </section>
 
-    <button class="add-btn">
-        ➕ Add Task
-    </button>
+    <section class="add-task">
+
+        <form action="/add" method="POST">
+
+            <input
+                type="text"
+                name="task"
+                placeholder="Enter your task..."
+                required>
+
+            <button type="submit" class="add-btn">
+                ➕ Add Task
+            </button>
+
+        </form>
+
+    </section>
 
     <section class="task-section">
 
         <h2>Your Tasks</h2>
 
-        <div class="task-card">
+        {% if tasks %}
 
-            <h3>No Tasks Available</h3>
+            {% for task in tasks %}
 
-            <p>
-                Click the Add Task button to create your first task.
-            </p>
+            <div class="task-card">
 
-        </div>
+                <div class="task-left">
+
+                    <input type="checkbox">
+
+                    <span>{{ task }}</span>
+
+                </div>
+
+                <a href="{{ url_for('delete', index=loop.index0) }}" class="delete-btn">
+                    🗑 Delete
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="task-card">
+
+                <p>No Tasks Available. Add your first task!</p>
+
+            </div>
+
+        {% endif %}
 
     </section>
 
 </div>
 
 </body>
+
 </html>
