@@ -18,6 +18,7 @@
         <p>Smart Task Management System</p>
     </header>
 
+    <!-- Dashboard Cards -->
     <section class="cards">
 
         <div class="card">
@@ -37,9 +38,10 @@
 
     </section>
 
+    <!-- Add Task -->
     <section class="add-task">
 
-        <form action="/add" method="POST">
+        <form action="{{ url_for('add') }}" method="POST">
 
             <input
                 type="text"
@@ -55,6 +57,7 @@
 
     </section>
 
+    <!-- Task List -->
     <section class="task-section">
 
         <h2>Your Tasks</h2>
@@ -69,11 +72,13 @@
 
                     <input type="checkbox">
 
-                    <span>{{ task }}</span>
+                    <!-- task[1] = title -->
+                    <span>{{ task[1] }}</span>
 
                 </div>
 
-                <a href="{{ url_for('delete', index=loop.index0) }}" class="delete-btn">
+                <!-- task[0] = id -->
+                <a href="{{ url_for('delete', id=task[0]) }}" class="delete-btn">
                     🗑 Delete
                 </a>
 
@@ -85,7 +90,9 @@
 
             <div class="task-card">
 
-                <p>No Tasks Available. Add your first task!</p>
+                <h3>No Tasks Available</h3>
+
+                <p>Click the Add Task button to create your first task.</p>
 
             </div>
 
