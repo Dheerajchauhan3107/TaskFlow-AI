@@ -13,6 +13,7 @@
 
 <div class="container">
 
+    <!-- Header -->
     <header>
         <h1>🚀 TaskFlow AI</h1>
         <p>Smart Task Management System</p>
@@ -23,17 +24,17 @@
 
         <div class="card">
             <h2>📋 Total Tasks</h2>
-            <span>{{ tasks|length }}</span>
+            <span>{{ total }}</span>
         </div>
 
         <div class="card">
             <h2>✅ Completed</h2>
-            <span>0</span>
+            <span>{{ completed }}</span>
         </div>
 
         <div class="card">
             <h2>⏳ Pending</h2>
-            <span>{{ tasks|length }}</span>
+            <span>{{ pending }}</span>
         </div>
 
     </section>
@@ -70,17 +71,27 @@
 
                 <div class="task-left">
 
+                    <!-- Day 6 me checkbox ko database se connect karenge -->
                     <input type="checkbox">
 
-                    <!-- task[1] = title -->
                     <span>{{ task[1] }}</span>
 
                 </div>
 
-                <!-- task[0] = id -->
-                <a href="{{ url_for('delete', id=task[0]) }}" class="delete-btn">
-                    🗑 Delete
-                </a>
+                <div class="actions">
+
+                    <a href="{{ url_for('edit', id=task[0]) }}"
+                       class="edit-btn">
+                        ✏️ Edit
+                    </a>
+
+                    <a href="{{ url_for('delete', id=task[0]) }}"
+                       class="delete-btn"
+                       onclick="return confirm('Delete this task?');">
+                        🗑 Delete
+                    </a>
+
+                </div>
 
             </div>
 
@@ -88,11 +99,11 @@
 
         {% else %}
 
-            <div class="task-card">
+            <div class="task-card empty">
 
-                <h3>No Tasks Available</h3>
+                <h3>📭 No Tasks Available</h3>
 
-                <p>Click the Add Task button to create your first task.</p>
+                <p>Create your first task to get started.</p>
 
             </div>
 

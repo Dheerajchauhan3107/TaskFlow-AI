@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Task - TaskFlow AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>✏️ Edit Task</h1>
+        <p>Update your task below</p>
+    </header>
+
+    <section class="add-task">
+
+        <form action="{{ url_for('edit', id=task.id) }}" method="POST">
+
+            <input
+                type="text"
+                name="task"
+                value="{{ task.title }}"
+                required>
+
+            <button type="submit" class="add-btn">
+                💾 Update Task
+            </button>
+
+        </form>
+
+    </section>
+
+    <br>
+
+    <a href="{{ url_for('home') }}" class="edit-btn">
+        ⬅ Back to Dashboard
+    </a>
+
+</div>
+
+</body>
+
+</html>
