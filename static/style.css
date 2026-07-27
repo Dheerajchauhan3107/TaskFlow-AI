@@ -1,3 +1,7 @@
+/* ===========================
+   Add Task Form
+=========================== */
+
 .add-task form{
     display:flex;
     gap:15px;
@@ -18,6 +22,10 @@
     border-color:#0984e3;
     box-shadow:0 0 8px rgba(9,132,227,.25);
 }
+
+/* ===========================
+   Task Card
+=========================== */
 
 .task-card{
     display:flex;
@@ -54,18 +62,40 @@
     font-weight:500;
 }
 
+/* ===========================
+   Completed Task
+=========================== */
+
+.completed{
+    color:#27ae60;
+    text-decoration:line-through;
+    font-weight:bold;
+    opacity:.8;
+}
+
+/* ===========================
+   Buttons
+=========================== */
+
 .actions{
     display:flex;
     gap:10px;
 }
 
-.edit-btn{
+.edit-btn,
+.delete-btn,
+.cancel-btn{
     text-decoration:none;
-    background:#f39c12;
     color:white;
-    padding:8px 14px;
+    padding:9px 16px;
     border-radius:8px;
     transition:.3s;
+    font-size:14px;
+    font-weight:600;
+}
+
+.edit-btn{
+    background:#f39c12;
 }
 
 .edit-btn:hover{
@@ -73,17 +103,62 @@
 }
 
 .delete-btn{
-    text-decoration:none;
     background:#e74c3c;
-    color:white;
-    padding:8px 14px;
-    border-radius:8px;
-    transition:.3s;
 }
 
 .delete-btn:hover{
     background:#c0392b;
 }
+
+.cancel-btn{
+    background:#6c757d;
+}
+
+.cancel-btn:hover{
+    background:#495057;
+}
+
+/* ===========================
+   Progress Card
+=========================== */
+
+.progress-card{
+    margin:25px 0;
+    background:#ffffff;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+.progress-card h2{
+    margin-bottom:15px;
+}
+
+.progress-bar{
+    width:100%;
+    height:20px;
+    background:#e0e0e0;
+    border-radius:30px;
+    overflow:hidden;
+}
+
+.progress-fill{
+    height:100%;
+    background:#2ecc71;
+    width:0;
+    transition:.5s ease;
+}
+
+.progress-card p{
+    margin-top:10px;
+    font-weight:bold;
+    text-align:right;
+    color:#2d3436;
+}
+
+/* ===========================
+   Empty State
+=========================== */
 
 .empty{
     justify-content:center;
@@ -97,4 +172,28 @@
 
 .empty p{
     color:#636e72;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media(max-width:768px){
+
+    .add-task form{
+        flex-direction:column;
+    }
+
+    .task-card{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+    .actions{
+        width:100%;
+        justify-content:flex-end;
+        flex-wrap:wrap;
+    }
+
 }

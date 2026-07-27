@@ -39,6 +39,21 @@
 
     </section>
 
+    <!-- Progress -->
+    <section class="progress-card">
+
+        <h2>📈 Today's Progress</h2>
+
+        <div class="progress-bar">
+            <div class="progress-fill"
+                 style="width: {{ progress }}%;">
+            </div>
+        </div>
+
+        <p>{{ progress }}% Completed</p>
+
+    </section>
+
     <!-- Add Task -->
     <section class="add-task">
 
@@ -71,21 +86,27 @@
 
                 <div class="task-left">
 
-                    <!-- Day 6 me checkbox ko database se connect karenge -->
-                    <input type="checkbox">
+                    <input
+                        type="checkbox"
+                        {% if task.status %}
+                        checked
+                        {% endif %}
+                        onclick="window.location='{{ url_for('toggle', id=task.id) }}'">
 
-                    <span>{{ task[1] }}</span>
+                    <span class="{% if task.status %}completed{% endif %}">
+                        {{ task.title }}
+                    </span>
 
                 </div>
 
                 <div class="actions">
 
-                    <a href="{{ url_for('edit', id=task[0]) }}"
+                    <a href="{{ url_for('edit', id=task.id) }}"
                        class="edit-btn">
                         ✏️ Edit
                     </a>
 
-                    <a href="{{ url_for('delete', id=task[0]) }}"
+                    <a href="{{ url_for('delete', id=task.id) }}"
                        class="delete-btn"
                        onclick="return confirm('Delete this task?');">
                         🗑 Delete
