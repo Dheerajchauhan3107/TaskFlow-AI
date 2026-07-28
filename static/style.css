@@ -1,177 +1,84 @@
 /* ===========================
-   Add Task Form
+   Priority
 =========================== */
 
-.add-task form{
-    display:flex;
-    gap:15px;
-    margin:25px 0;
+.priority{
+    display:inline-block;
+    margin-top:8px;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
 }
 
-.add-task input{
-    flex:1;
+.priority.high{
+    background:#ffe5e5;
+    color:#e74c3c;
+}
+
+.priority.medium{
+    background:#fff4d6;
+    color:#f39c12;
+}
+
+.priority.low{
+    background:#eafaf1;
+    color:#27ae60;
+}
+
+/* ===========================
+   Due Date
+=========================== */
+
+.due-date{
+    display:block;
+    margin-top:8px;
+    color:#636e72;
+    font-size:14px;
+}
+
+/* ===========================
+   Select & Date Input
+=========================== */
+
+.add-task select,
+.add-task input[type="date"]{
+
     padding:14px;
-    font-size:16px;
     border:2px solid #dfe6e9;
     border-radius:10px;
+    font-size:15px;
     outline:none;
     transition:.3s;
+    background:white;
+
 }
 
-.add-task input:focus{
+.add-task select:focus,
+.add-task input[type="date"]:focus{
+
     border-color:#0984e3;
     box-shadow:0 0 8px rgba(9,132,227,.25);
+
 }
 
 /* ===========================
-   Task Card
+   Better Task Layout
 =========================== */
-
-.task-card{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:#ffffff;
-    padding:15px 20px;
-    margin-top:15px;
-    border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,.08);
-    transition:.3s;
-}
-
-.task-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 8px 18px rgba(0,0,0,.12);
-}
 
 .task-left{
+
     display:flex;
-    align-items:center;
-    gap:12px;
+    align-items:flex-start;
+    gap:15px;
+
 }
 
-.task-left input{
-    width:18px;
-    height:18px;
-    cursor:pointer;
-}
+.task-left div{
 
-.task-left span{
-    font-size:17px;
-    color:#2d3436;
-    font-weight:500;
-}
-
-/* ===========================
-   Completed Task
-=========================== */
-
-.completed{
-    color:#27ae60;
-    text-decoration:line-through;
-    font-weight:bold;
-    opacity:.8;
-}
-
-/* ===========================
-   Buttons
-=========================== */
-
-.actions{
     display:flex;
-    gap:10px;
-}
-
-.edit-btn,
-.delete-btn,
-.cancel-btn{
-    text-decoration:none;
-    color:white;
-    padding:9px 16px;
-    border-radius:8px;
-    transition:.3s;
-    font-size:14px;
-    font-weight:600;
-}
-
-.edit-btn{
-    background:#f39c12;
-}
-
-.edit-btn:hover{
-    background:#d68910;
-}
-
-.delete-btn{
-    background:#e74c3c;
-}
-
-.delete-btn:hover{
-    background:#c0392b;
-}
-
-.cancel-btn{
-    background:#6c757d;
-}
-
-.cancel-btn:hover{
-    background:#495057;
-}
-
-/* ===========================
-   Progress Card
-=========================== */
-
-.progress-card{
-    margin:25px 0;
-    background:#ffffff;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,.08);
-}
-
-.progress-card h2{
-    margin-bottom:15px;
-}
-
-.progress-bar{
-    width:100%;
-    height:20px;
-    background:#e0e0e0;
-    border-radius:30px;
-    overflow:hidden;
-}
-
-.progress-fill{
-    height:100%;
-    background:#2ecc71;
-    width:0;
-    transition:.5s ease;
-}
-
-.progress-card p{
-    margin-top:10px;
-    font-weight:bold;
-    text-align:right;
-    color:#2d3436;
-}
-
-/* ===========================
-   Empty State
-=========================== */
-
-.empty{
-    justify-content:center;
-    text-align:center;
     flex-direction:column;
-}
 
-.empty h3{
-    margin-bottom:10px;
-}
-
-.empty p{
-    color:#636e72;
 }
 
 /* ===========================
@@ -181,19 +88,16 @@
 @media(max-width:768px){
 
     .add-task form{
+
         flex-direction:column;
+
     }
 
-    .task-card{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:15px;
-    }
+    .add-task select,
+    .add-task input[type="date"]{
 
-    .actions{
         width:100%;
-        justify-content:flex-end;
-        flex-wrap:wrap;
+
     }
 
 }

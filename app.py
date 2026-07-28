@@ -1,6 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for
 import mysql.connector
 from mysql.connector import Error
+from dotenv import load_dotenv
+import os
+
+# ==========================
+# Load Environment Variables
+# ==========================
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -10,10 +18,10 @@ app = Flask(__name__)
 
 try:
     db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="78103609210380",      # <-- Apna MySQL password yahan likho
-        database="taskflow_ai"
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
     )
 
     cursor = db.cursor(dictionary=True)
@@ -36,14 +44,13 @@ def home():
     cursor.execute("SELECT COUNT(*) AS total FROM tasks")
     total = cursor.fetchone()["total"]
 
-    cursor.execute("SELECT COUNT(*) AS completed FROM tasks WHERE status = 1")
+    cursor.execute("SELECT COUNT(*) AS completed FROM tasks WHERE status=1")
     completed = cursor.fetchone()["completed"]
 
     pending = total - completed
 
-    if total == 0:
-        progress = 0
-    else:
+    progress = 0
+    if total > 0:
         progress = int((completed / total) * 100)
 
     return render_template(
@@ -64,12 +71,21 @@ def home():
 def add():
 
     task = request.form.get("task")
+    priority = request.form.get("priority")
+    due_date = request.form.get("due_date")
 
     if task and task.strip():
 
         cursor.execute(
-            "INSERT INTO tasks(title) VALUES(%s)",
-            (task.strip(),)
+            """
+            INSERT INTO tasks(title, priority, due_date)
+            VALUES(%s, %s, %s)
+            """,
+            (
+                task.strip(),
+                priority,
+                due_date if due_date else None
+            )
         )
 
         db.commit()
@@ -95,7 +111,7 @@ def delete(id):
 
 
 # ==========================
-# Toggle Complete Task
+# Toggle Complete
 # ==========================
 
 @app.route("/toggle/<int:id>")
@@ -120,18 +136,29 @@ def edit(id):
 
     if request.method == "POST":
 
-        new_task = request.form.get("task")
+        title = request.form.get("task")
+        priority = request.form.get("priority")
+        due_date = request.form.get("due_date")
 
-        if new_task and new_task.strip():
-
-            cursor.execute(
-                "UPDATE tasks SET title=%s WHERE id=%s",
-                (new_task.strip(), id)
+        cursor.execute(
+            """
+            UPDATE tasks
+            SET title=%s,
+                priority=%s,
+                due_date=%s
+            WHERE id=%s
+            """,
+            (
+                title.strip(),
+                priority,
+                due_date if due_date else None,
+                id
             )
+        )
 
-            db.commit()
+        db.commit()
 
-            return redirect(url_for("home"))
+        return redirect(url_for("home"))
 
     cursor.execute(
         "SELECT * FROM tasks WHERE id=%s",
@@ -150,7 +177,7 @@ def edit(id):
 
 
 # ==========================
-# Run Flask App
+# Run Application
 # ==========================
 
 if __name__ == "__main__":
