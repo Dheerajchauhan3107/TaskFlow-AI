@@ -44,7 +44,7 @@ def home():
     cursor.execute("SELECT COUNT(*) AS total FROM tasks")
     total = cursor.fetchone()["total"]
 
-    cursor.execute("SELECT COUNT(*) AS completed FROM tasks WHERE status=1")
+    cursor.execute("SELECT COUNT(*) AS completed FROM tasks WHERE status = 1")
     completed = cursor.fetchone()["completed"]
 
     pending = total - completed
@@ -70,8 +70,10 @@ def home():
 @app.route("/add", methods=["POST"])
 def add():
 
+    print("FORM DATA:", request.form)
+
     task = request.form.get("task")
-    priority = request.form.get("priority")
+    priority = request.form.get("priority") or "Medium"
     due_date = request.form.get("due_date")
 
     if task and task.strip():
@@ -89,6 +91,25 @@ def add():
         )
 
         db.commit()
+
+    return redirect(url_for("home"))
+    # ==========================
+# Toggle Complete
+# ==========================
+
+@app.route("/toggle/<int:id>")
+def toggle(id):
+
+    cursor.execute(
+        """
+        UPDATE tasks
+        SET status = NOT status
+        WHERE id=%s
+        """,
+        (id,)
+    )
+
+    db.commit()
 
     return redirect(url_for("home"))
 
@@ -111,23 +132,6 @@ def delete(id):
 
 
 # ==========================
-# Toggle Complete
-# ==========================
-
-@app.route("/toggle/<int:id>")
-def toggle(id):
-
-    cursor.execute(
-        "UPDATE tasks SET status = NOT status WHERE id=%s",
-        (id,)
-    )
-
-    db.commit()
-
-    return redirect(url_for("home"))
-
-
-# ==========================
 # Edit Task
 # ==========================
 
@@ -140,25 +144,30 @@ def edit(id):
         priority = request.form.get("priority")
         due_date = request.form.get("due_date")
 
-        cursor.execute(
-            """
-            UPDATE tasks
-            SET title=%s,
-                priority=%s,
-                due_date=%s
-            WHERE id=%s
-            """,
-            (
-                title.strip(),
-                priority,
-                due_date if due_date else None,
-                id
+        if title and title.strip():
+
+            if not priority:
+                priority = "Medium"
+
+            cursor.execute(
+                """
+                UPDATE tasks
+                SET title=%s,
+                    priority=%s,
+                    due_date=%s
+                WHERE id=%s
+                """,
+                (
+                    title.strip(),
+                    priority,
+                    due_date if due_date else None,
+                    id
+                )
             )
-        )
 
-        db.commit()
+            db.commit()
 
-        return redirect(url_for("home"))
+            return redirect(url_for("home"))
 
     cursor.execute(
         "SELECT * FROM tasks WHERE id=%s",

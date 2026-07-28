@@ -19,7 +19,7 @@
         <p>Smart Task Management System</p>
     </header>
 
-    <!-- Dashboard Cards -->
+    <!-- Dashboard -->
     <section class="cards">
 
         <div class="card">
@@ -46,8 +46,7 @@
 
         <div class="progress-bar">
             <div class="progress-fill"
-                 style="width: {{ progress }}%;">
-            </div>
+                 style="width: {{ progress }}%;"></div>
         </div>
 
         <p>{{ progress }}% Completed</p>
@@ -65,7 +64,19 @@
                 placeholder="Enter your task..."
                 required>
 
-            <button type="submit" class="add-btn">
+            <select name="priority">
+                <option value="High">🔴 High</option>
+                <option value="Medium" selected>🟡 Medium</option>
+                <option value="Low">🟢 Low</option>
+            </select>
+
+            <input
+                type="date"
+                name="due_date">
+
+            <button
+                type="submit"
+                class="add-btn">
                 ➕ Add Task
             </button>
 
@@ -93,9 +104,29 @@
                         {% endif %}
                         onclick="window.location='{{ url_for('toggle', id=task.id) }}'">
 
-                    <span class="{% if task.status %}completed{% endif %}">
-                        {{ task.title }}
-                    </span>
+                    <div>
+
+                        <span class="{% if task.status %}completed{% endif %}">
+                            {{ task.title }}
+                        </span>
+
+                        <span class="priority {{ task.priority|lower if task.priority else 'medium' }}">
+                            {% if task.priority == "High" %}
+                                🔴 High
+                            {% elif task.priority == "Low" %}
+                                🟢 Low
+                            {% else %}
+                                🟡 Medium
+                            {% endif %}
+                        </span>
+
+                        {% if task.due_date %}
+                        <span class="due-date">
+                            📅 {{ task.due_date }}
+                        </span>
+                        {% endif %}
+
+                    </div>
 
                 </div>
 
@@ -135,5 +166,4 @@
 </div>
 
 </body>
-
 </html>
