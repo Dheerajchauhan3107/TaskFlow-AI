@@ -1,66 +1,132 @@
 /* ===========================
-   Priority
+   Search Bar
 =========================== */
 
-.priority{
-    display:inline-block;
-    margin-top:8px;
-    padding:4px 10px;
-    border-radius:20px;
-    font-size:13px;
-    font-weight:bold;
+.search-section{
+
+    margin:25px 0;
+
 }
 
-.priority.high{
-    background:#ffe5e5;
-    color:#e74c3c;
+.search-section form{
+
+    display:flex;
+    gap:15px;
+
 }
 
-.priority.medium{
-    background:#fff4d6;
-    color:#f39c12;
-}
+.search-section input{
 
-.priority.low{
-    background:#eafaf1;
-    color:#27ae60;
-}
-
-/* ===========================
-   Due Date
-=========================== */
-
-.due-date{
-    display:block;
-    margin-top:8px;
-    color:#636e72;
-    font-size:14px;
-}
-
-/* ===========================
-   Select & Date Input
-=========================== */
-
-.add-task select,
-.add-task input[type="date"]{
-
+    flex:1;
     padding:14px;
     border:2px solid #dfe6e9;
     border-radius:10px;
-    font-size:15px;
+    font-size:16px;
     outline:none;
     transition:.3s;
-    background:white;
 
 }
 
-.add-task select:focus,
-.add-task input[type="date"]:focus{
+.search-section input:focus{
 
     border-color:#0984e3;
     box-shadow:0 0 8px rgba(9,132,227,.25);
 
 }
+
+.search-btn{
+
+    background:#0984e3;
+    color:white;
+    border:none;
+    padding:14px 25px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+    transition:.3s;
+
+}
+
+.search-btn:hover{
+
+    background:#0767b2;
+
+}
+
+
+/* ===========================
+   Filter Buttons
+=========================== */
+
+.filter-section{
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:20px 0;
+
+}
+
+.filter-btn{
+
+    text-decoration:none;
+    background:#f1f2f6;
+    color:#2d3436;
+    padding:10px 16px;
+    border-radius:30px;
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+
+}
+
+.filter-btn:hover{
+
+    background:#0984e3;
+    color:white;
+
+}
+
+.filter-btn.active{
+
+    background:#0984e3;
+    color:white;
+
+}
+/* ===========================
+   Better Buttons
+=========================== */
+
+.add-btn,
+.search-btn{
+
+    min-width:140px;
+
+}
+
+.edit-btn,
+.delete-btn{
+
+    min-width:90px;
+    text-align:center;
+
+}
+
+
+/* ===========================
+   Better Checkbox
+=========================== */
+
+.task-left input[type="checkbox"]{
+
+    width:20px;
+    height:20px;
+    cursor:pointer;
+    margin-top:5px;
+
+}
+
 
 /* ===========================
    Better Task Layout
@@ -78,14 +144,132 @@
 
     display:flex;
     flex-direction:column;
+    gap:6px;
 
 }
+
+
+/* ===========================
+   Task Animation
+=========================== */
+
+.task-card{
+
+    animation:fadeIn .35s ease;
+    transition:.3s;
+
+}
+
+.task-card:hover{
+
+    transform:translateY(-3px);
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+        transform:translateY(10px);
+
+    }
+
+    to{
+
+        opacity:1;
+        transform:translateY(0);
+
+    }
+
+}
+
+
+/* ===========================
+   Priority Hover
+=========================== */
+
+.priority{
+
+    transition:.3s;
+
+}
+
+.priority:hover{
+
+    transform:scale(1.05);
+
+}
+
+.task-card:hover .priority{
+
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+
+}
+/* ===========================
+   Empty Search Result
+=========================== */
+
+.empty{
+
+    padding:35px;
+    text-align:center;
+
+}
+
+.empty h3{
+
+    color:#2d3436;
+    margin-bottom:10px;
+
+}
+
+.empty p{
+
+    font-size:15px;
+    color:#636e72;
+
+}
+
 
 /* ===========================
    Responsive
 =========================== */
 
 @media(max-width:768px){
+
+    /* Search */
+
+    .search-section form{
+
+        flex-direction:column;
+
+    }
+
+    .search-btn{
+
+        width:100%;
+
+    }
+
+    /* Filters */
+
+    .filter-section{
+
+        justify-content:center;
+
+    }
+
+    .filter-btn{
+
+        flex:1;
+        text-align:center;
+        min-width:120px;
+
+    }
+
+    /* Add Task */
 
     .add-task form{
 
@@ -99,5 +283,35 @@
         width:100%;
 
     }
+
+    /* Task Card */
+
+    .task-card{
+
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+
+    }
+
+    .actions{
+
+        width:100%;
+        display:flex;
+        justify-content:flex-end;
+        flex-wrap:wrap;
+
+    }
+
+}
+
+
+/* ===========================
+   Smooth Scroll
+=========================== */
+
+html{
+
+    scroll-behavior:smooth;
 
 }

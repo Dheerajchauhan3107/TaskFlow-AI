@@ -2,11 +2,17 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>TaskFlow AI</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
 <body>
@@ -14,49 +20,131 @@
 <div class="container">
 
     <!-- Header -->
+
     <header>
+
         <h1>🚀 TaskFlow AI</h1>
+
         <p>Smart Task Management System</p>
+
     </header>
 
     <!-- Dashboard -->
+
     <section class="cards">
 
         <div class="card">
+
             <h2>📋 Total Tasks</h2>
+
             <span>{{ total }}</span>
+
         </div>
 
         <div class="card">
+
             <h2>✅ Completed</h2>
+
             <span>{{ completed }}</span>
+
         </div>
 
         <div class="card">
+
             <h2>⏳ Pending</h2>
+
             <span>{{ pending }}</span>
+
         </div>
 
     </section>
 
     <!-- Progress -->
+
     <section class="progress-card">
 
         <h2>📈 Today's Progress</h2>
 
         <div class="progress-bar">
+
             <div class="progress-fill"
-                 style="width: {{ progress }}%;"></div>
+                 style="width: {{ progress }}%;">
+
+            </div>
+
         </div>
 
         <p>{{ progress }}% Completed</p>
 
     </section>
 
+    <!-- Search -->
+
+    <section class="search-section">
+
+        <form action="{{ url_for('home') }}"
+              method="GET">
+
+            <input
+                type="text"
+                name="search"
+                placeholder="🔍 Search tasks..."
+                value="{{ search }}">
+
+            <button
+                type="submit"
+                class="search-btn">
+
+                🔍 Search
+
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- Filters -->
+
+    <section class="filter-section">
+
+        <a href="{{ url_for('home') }}"
+           class="filter-btn {% if filter_by=='' %}active{% endif %}">
+           All
+        </a>
+
+        <a href="{{ url_for('home', filter='completed') }}"
+           class="filter-btn {% if filter_by=='completed' %}active{% endif %}">
+           ✅ Completed
+        </a>
+
+        <a href="{{ url_for('home', filter='pending') }}"
+           class="filter-btn {% if filter_by=='pending' %}active{% endif %}">
+           ⏳ Pending
+        </a>
+
+        <a href="{{ url_for('home', filter='high') }}"
+           class="filter-btn {% if filter_by=='high' %}active{% endif %}">
+           🔴 High
+        </a>
+
+        <a href="{{ url_for('home', filter='medium') }}"
+           class="filter-btn {% if filter_by=='medium' %}active{% endif %}">
+           🟡 Medium
+        </a>
+
+        <a href="{{ url_for('home', filter='low') }}"
+           class="filter-btn {% if filter_by=='low' %}active{% endif %}">
+           🟢 Low
+        </a>
+
+    </section>
+
     <!-- Add Task -->
+
     <section class="add-task">
 
-        <form action="{{ url_for('add') }}" method="POST">
+        <form action="{{ url_for('add') }}"
+              method="POST">
 
             <input
                 type="text"
@@ -65,9 +153,17 @@
                 required>
 
             <select name="priority">
+
                 <option value="High">🔴 High</option>
-                <option value="Medium" selected>🟡 Medium</option>
-                <option value="Low">🟢 Low</option>
+
+                <option value="Medium" selected>
+                    🟡 Medium
+                </option>
+
+                <option value="Low">
+                    🟢 Low
+                </option>
+
             </select>
 
             <input
@@ -77,7 +173,9 @@
             <button
                 type="submit"
                 class="add-btn">
+
                 ➕ Add Task
+
             </button>
 
         </form>
@@ -85,79 +183,127 @@
     </section>
 
     <!-- Task List -->
+
     <section class="task-section">
 
         <h2>Your Tasks</h2>
 
         {% if tasks %}
 
-            {% for task in tasks %}
+        {% for task in tasks %}
+                <div class="task-card">
 
-            <div class="task-card">
+            <div class="task-left">
 
-                <div class="task-left">
+                <input
+                    type="checkbox"
+                    {% if task.status %}
+                    checked
+                    {% endif %}
+                    onclick="window.location='{{ url_for('toggle', id=task.id) }}'">
 
-                    <input
-                        type="checkbox"
-                        {% if task.status %}
-                        checked
+                <div>
+
+                    <span class="{% if task.status %}completed{% endif %}">
+
+                        {{ task.title }}
+
+                    </span>
+
+                    <span class="priority {{ task.priority|lower if task.priority else 'medium' }}">
+
+                        {% if task.priority == "High" %}
+
+                            🔴 High
+
+                        {% elif task.priority == "Medium" %}
+
+                            🟡 Medium
+
+                        {% elif task.priority == "Low" %}
+
+                            🟢 Low
+
+                        {% else %}
+
+                            ⚪ No Priority
+
                         {% endif %}
-                        onclick="window.location='{{ url_for('toggle', id=task.id) }}'">
 
-                    <div>
+                    </span>
 
-                        <span class="{% if task.status %}completed{% endif %}">
-                            {{ task.title }}
-                        </span>
+                    {% if task.due_date %}
 
-                        <span class="priority {{ task.priority|lower if task.priority else 'medium' }}">
-                            {% if task.priority == "High" %}
-                                🔴 High
-                            {% elif task.priority == "Low" %}
-                                🟢 Low
-                            {% else %}
-                                🟡 Medium
-                            {% endif %}
-                        </span>
+                    <span class="due-date">
 
-                        {% if task.due_date %}
-                        <span class="due-date">
-                            📅 {{ task.due_date }}
-                        </span>
-                        {% endif %}
+                        📅 {{ task.due_date }}
 
-                    </div>
+                    </span>
 
-                </div>
-
-                <div class="actions">
-
-                    <a href="{{ url_for('edit', id=task.id) }}"
-                       class="edit-btn">
-                        ✏️ Edit
-                    </a>
-
-                    <a href="{{ url_for('delete', id=task.id) }}"
-                       class="delete-btn"
-                       onclick="return confirm('Delete this task?');">
-                        🗑 Delete
-                    </a>
+                    {% endif %}
 
                 </div>
 
             </div>
 
-            {% endfor %}
+            <div class="actions">
 
-        {% else %}
+                <a
+                    href="{{ url_for('edit', id=task.id) }}"
+                    class="edit-btn">
 
-            <div class="task-card empty">
+                    ✏️ Edit
 
-                <h3>📭 No Tasks Available</h3>
+                </a>
 
-                <p>Create your first task to get started.</p>
+                <a
+                    href="{{ url_for('delete', id=task.id) }}"
+                    class="delete-btn"
+                    onclick="return confirm('Delete this task?');">
+
+                    🗑 Delete
+
+                </a>
 
             </div>
+
+        </div>
+
+        {% endfor %}
+                {% else %}
+
+        <div class="task-card empty">
+
+            <h3>📭 No Tasks Found</h3>
+
+            {% if search %}
+
+                <p>
+
+                    No task found for
+                    <b>"{{ search }}"</b>
+
+                </p>
+
+            {% elif filter_by %}
+
+                <p>
+
+                    No tasks available for the selected filter.
+
+                </p>
+
+            {% else %}
+
+                <p>
+
+                    Create your first task to get started.
+
+                </p>
+
+            {% endif %}
+
+        </div>
 
         {% endif %}
 
@@ -166,4 +312,5 @@
 </div>
 
 </body>
+
 </html>

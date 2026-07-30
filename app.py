@@ -17,6 +17,7 @@ app = Flask(__name__)
 # ==========================
 
 try:
+
     db = mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
@@ -25,9 +26,11 @@ try:
     )
 
     cursor = db.cursor(dictionary=True)
+
     print("✅ Connected to MySQL Successfully")
 
 except Error as e:
+
     print("❌ Database Connection Error:", e)
 
 
@@ -38,19 +41,67 @@ except Error as e:
 @app.route("/")
 def home():
 
-    cursor.execute("SELECT * FROM tasks ORDER BY id DESC")
+    search = request.args.get("search", "").strip()
+    filter_by = request.args.get("filter", "")
+
+    query = "SELECT * FROM tasks WHERE 1=1"
+    params = []
+
+    # Search
+
+    if search:
+
+        query += " AND title LIKE %s"
+        params.append("%" + search + "%")
+
+    # Filters
+
+    if filter_by == "completed":
+
+        query += " AND status=1"
+
+    elif filter_by == "pending":
+
+        query += " AND status=0"
+
+    elif filter_by == "high":
+
+        query += " AND priority='High'"
+
+    elif filter_by == "medium":
+
+        query += " AND priority='Medium'"
+
+    elif filter_by == "low":
+
+        query += " AND priority='Low'"
+
+    query += " ORDER BY id DESC"
+
+    cursor.execute(query, tuple(params))
+
     tasks = cursor.fetchall()
 
-    cursor.execute("SELECT COUNT(*) AS total FROM tasks")
+    # Dashboard
+
+    cursor.execute(
+        "SELECT COUNT(*) AS total FROM tasks"
+    )
+
     total = cursor.fetchone()["total"]
 
-    cursor.execute("SELECT COUNT(*) AS completed FROM tasks WHERE status = 1")
+    cursor.execute(
+        "SELECT COUNT(*) AS completed FROM tasks WHERE status=1"
+    )
+
     completed = cursor.fetchone()["completed"]
 
     pending = total - completed
 
     progress = 0
+
     if total > 0:
+
         progress = int((completed / total) * 100)
 
     return render_template(
@@ -59,18 +110,16 @@ def home():
         total=total,
         completed=completed,
         pending=pending,
-        progress=progress
+        progress=progress,
+        search=search,
+        filter_by=filter_by
     )
-
-
-# ==========================
+    # ==========================
 # Add Task
 # ==========================
 
 @app.route("/add", methods=["POST"])
 def add():
-
-    print("FORM DATA:", request.form)
 
     task = request.form.get("task")
     priority = request.form.get("priority") or "Medium"
@@ -93,7 +142,9 @@ def add():
         db.commit()
 
     return redirect(url_for("home"))
-    # ==========================
+
+
+# ==========================
 # Toggle Complete
 # ==========================
 
@@ -122,16 +173,17 @@ def toggle(id):
 def delete(id):
 
     cursor.execute(
-        "DELETE FROM tasks WHERE id=%s",
+        """
+        DELETE FROM tasks
+        WHERE id=%s
+        """,
         (id,)
     )
 
     db.commit()
 
     return redirect(url_for("home"))
-
-
-# ==========================
+    # ==========================
 # Edit Task
 # ==========================
 
@@ -141,18 +193,16 @@ def edit(id):
     if request.method == "POST":
 
         title = request.form.get("task")
-        priority = request.form.get("priority")
+        priority = request.form.get("priority") or "Medium"
         due_date = request.form.get("due_date")
 
         if title and title.strip():
 
-            if not priority:
-                priority = "Medium"
-
             cursor.execute(
                 """
                 UPDATE tasks
-                SET title=%s,
+                SET
+                    title=%s,
                     priority=%s,
                     due_date=%s
                 WHERE id=%s
@@ -170,7 +220,11 @@ def edit(id):
             return redirect(url_for("home"))
 
     cursor.execute(
-        "SELECT * FROM tasks WHERE id=%s",
+        """
+        SELECT *
+        FROM tasks
+        WHERE id=%s
+        """,
         (id,)
     )
 
