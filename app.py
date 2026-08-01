@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
@@ -11,6 +11,9 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
+
+# Flash Message Secret Key
+app.secret_key = "taskflow_ai_secret"
 
 # ==========================
 # MySQL Connection
@@ -118,7 +121,6 @@ def home():
     progress = 0
 
     if total > 0:
-
         progress = int((completed / total) * 100)
 
     return render_template(
@@ -159,6 +161,8 @@ def add():
 
         db.commit()
 
+        flash("✅ Task Added Successfully!", "success")
+
     return redirect(url_for("home"))
 
 
@@ -180,6 +184,8 @@ def toggle(id):
 
     db.commit()
 
+    flash("✔️ Task Status Updated!", "info")
+
     return redirect(url_for("home"))
 
 
@@ -199,6 +205,8 @@ def delete(id):
     )
 
     db.commit()
+
+    flash("🗑️ Task Deleted Successfully!", "danger")
 
     return redirect(url_for("home"))
     # ==========================
@@ -235,6 +243,8 @@ def edit(id):
 
             db.commit()
 
+            flash("✏️ Task Updated Successfully!", "warning")
+
             return redirect(url_for("home"))
 
     cursor.execute(
@@ -263,6 +273,4 @@ def edit(id):
 
 if __name__ == "__main__":
 
-    app.run(
-        debug=True
-    )
+    app.run(debug=True)
