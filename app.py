@@ -43,6 +43,7 @@ def home():
 
     search = request.args.get("search", "").strip()
     filter_by = request.args.get("filter", "")
+    sort_by = request.args.get("sort", "newest")
 
     query = "SELECT * FROM tasks WHERE 1=1"
     params = []
@@ -54,7 +55,7 @@ def home():
         query += " AND title LIKE %s"
         params.append("%" + search + "%")
 
-    # Filters
+    # Filter
 
     if filter_by == "completed":
 
@@ -76,24 +77,40 @@ def home():
 
         query += " AND priority='Low'"
 
-    query += " ORDER BY id DESC"
+    # Sorting
+
+    if sort_by == "oldest":
+
+        query += " ORDER BY id ASC"
+
+    elif sort_by == "priority":
+
+        query += """
+        ORDER BY
+        CASE
+            WHEN priority='High' THEN 1
+            WHEN priority='Medium' THEN 2
+            WHEN priority='Low' THEN 3
+            ELSE 4
+        END
+        """
+
+    elif sort_by == "due":
+
+        query += " ORDER BY due_date ASC"
+
+    else:
+
+        query += " ORDER BY id DESC"
 
     cursor.execute(query, tuple(params))
 
     tasks = cursor.fetchall()
 
-    # Dashboard
-
-    cursor.execute(
-        "SELECT COUNT(*) AS total FROM tasks"
-    )
-
+    cursor.execute("SELECT COUNT(*) AS total FROM tasks")
     total = cursor.fetchone()["total"]
 
-    cursor.execute(
-        "SELECT COUNT(*) AS completed FROM tasks WHERE status=1"
-    )
-
+    cursor.execute("SELECT COUNT(*) AS completed FROM tasks WHERE status=1")
     completed = cursor.fetchone()["completed"]
 
     pending = total - completed
@@ -112,7 +129,8 @@ def home():
         pending=pending,
         progress=progress,
         search=search,
-        filter_by=filter_by
+        filter_by=filter_by,
+        sort_by=sort_by
     )
     # ==========================
 # Add Task
@@ -244,4 +262,7 @@ def edit(id):
 # ==========================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+
+    app.run(
+        debug=True
+    )

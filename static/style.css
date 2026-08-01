@@ -1,5 +1,5 @@
 /* ===========================
-   Search Bar
+   Search + Sorting
 =========================== */
 
 .search-section{
@@ -12,10 +12,12 @@
 
     display:flex;
     gap:15px;
+    flex-wrap:wrap;
 
 }
 
-.search-section input{
+.search-section input,
+.search-section select{
 
     flex:1;
     padding:14px;
@@ -23,11 +25,13 @@
     border-radius:10px;
     font-size:16px;
     outline:none;
+    background:white;
     transition:.3s;
 
 }
 
-.search-section input:focus{
+.search-section input:focus,
+.search-section select:focus{
 
     border-color:#0984e3;
     box-shadow:0 0 8px rgba(9,132,227,.25);
@@ -162,8 +166,8 @@
 
 .task-card:hover{
 
-    transform:translateY(-3px);
-    box-shadow:0 8px 20px rgba(0,0,0,.12);
+    transform:translateY(-4px);
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
 
 }
 
@@ -187,7 +191,7 @@
 
 
 /* ===========================
-   Priority Hover
+   Priority Badge
 =========================== */
 
 .priority{
@@ -204,11 +208,24 @@
 
 .task-card:hover .priority{
 
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    box-shadow:0 3px 10px rgba(0,0,0,.15);
+
+}
+
+
+/* ===========================
+   Due Date
+=========================== */
+
+.due-date{
+
+    color:#636e72;
+    font-size:14px;
+    margin-top:4px;
 
 }
 /* ===========================
-   Empty Search Result
+   Empty State
 =========================== */
 
 .empty{
@@ -222,6 +239,7 @@
 
     color:#2d3436;
     margin-bottom:10px;
+    font-size:24px;
 
 }
 
@@ -229,6 +247,7 @@
 
     font-size:15px;
     color:#636e72;
+    line-height:1.6;
 
 }
 
@@ -247,6 +266,8 @@
 
     }
 
+    .search-section input,
+    .search-section select,
     .search-btn{
 
         width:100%;
@@ -264,8 +285,8 @@
     .filter-btn{
 
         flex:1;
-        text-align:center;
         min-width:120px;
+        text-align:center;
 
     }
 
@@ -277,8 +298,9 @@
 
     }
 
+    .add-task input,
     .add-task select,
-    .add-task input[type="date"]{
+    .add-task button{
 
         width:100%;
 
@@ -300,6 +322,7 @@
         display:flex;
         justify-content:flex-end;
         flex-wrap:wrap;
+        gap:10px;
 
     }
 
@@ -313,5 +336,35 @@
 html{
 
     scroll-behavior:smooth;
+
+}
+
+
+/* ===========================
+   Custom Scrollbar
+=========================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#f1f2f6;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#0984e3;
+    border-radius:10px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#0767b2;
 
 }
