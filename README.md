@@ -17,6 +17,8 @@ TaskFlow-AI is a smart task management web application built with Python, Flask,
 - Flash messages for user actions
 - Responsive dashboard UI
 - Progress bar
+- AI task generation from a goal
+- AI answers about pending, completed, overdue, and high-priority tasks
 
 ## 🛠 Tech Stack
 
@@ -39,4 +41,15 @@ TaskFlow-AI/
 │   └── edit.html
 ├── static/
 │   └── style.css
-└── README.md
+├── ai.py
+├── README.md
+
+## ▶️ Run the app
+
+1. Install dependencies:
+   pip install -r requirements.txt
+2. Start the Flask app:
+   python app.py
+3. Open http://127.0.0.1:5000/
+
+> Make sure your MySQL database is available and the environment variables for the database and Gemini API are set.

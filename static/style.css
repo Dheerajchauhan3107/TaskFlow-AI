@@ -157,6 +157,7 @@ header p {
     color: #636e72;
 
 }
+
 /* =====================================================
                 SEARCH + SORTING
 ===================================================== */
@@ -299,6 +300,17 @@ header p {
 
 }
 
+.alert.assistant-response {
+
+    padding: 20px 24px;
+    border-left: 6px solid #ffffffcc;
+    font-size: 16px;
+    line-height: 1.7;
+    white-space: pre-line;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+
+}
+
 @keyframes slideDown {
 
     from {
@@ -358,6 +370,7 @@ header p {
     text-decoration: none;
 
 }
+
 /* =====================================================
                 AI TASK GENERATOR
 ===================================================== */
@@ -435,6 +448,61 @@ header p {
 
 }
 
+.chat-card {
+
+    background: linear-gradient(135deg, #2c3e50, #4a69bd);
+
+}
+
+.chat-box {
+
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 240px;
+    max-height: 320px;
+    overflow-y: auto;
+
+}
+
+.chat-message {
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    max-width: 90%;
+    word-break: break-word;
+
+}
+
+.chat-message.assistant {
+
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.95);
+    color: #2d3436;
+
+}
+
+.chat-message.user {
+
+    align-self: flex-end;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+
+}
+
+.chat-form textarea {
+
+    min-height: 80px;
+
+}
+
 
 /* =====================================================
                 ADD TASK FORM
@@ -497,6 +565,7 @@ header p {
     transform: translateY(-2px);
 
 }
+
 /* =====================================================
                 TASK SECTION
 ===================================================== */
@@ -780,6 +849,7 @@ header p {
     flex-wrap: wrap;
 
 }
+
 /* =====================================================
                 EMPTY STATE
 ===================================================== */
@@ -931,6 +1001,7 @@ header p {
     }
 
 }
+
 /* =====================================================
                 DARK MODE READY
 ===================================================== */

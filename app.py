@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 from datetime import date
-from ai import generate_ai_tasks
+from ai import answer_task_question, build_task_plan_from_goal, extract_task_items, generate_ai_tasks, get_chat_response
 import os
 
 # ==========================
@@ -19,6 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 
 app.secret_key = "taskflow_ai_secret"
+app.config["SESSION_TYPE"] = "filesystem"
 
 # ==========================
 # MySQL Connection
@@ -121,7 +122,8 @@ def home():
             search=search,
             filter_by=filter_by,
             sort_by=sort_by,
-            today=today
+            today=today,
+            chat_history=session.get("chat_history", [])
         )
 
     # ==========================
@@ -278,7 +280,9 @@ def home():
 
         sort_by=sort_by,
 
-        today=today
+        today=today,
+
+        chat_history=session.get("chat_history", [])
 
     )
     # ==========================
@@ -296,6 +300,12 @@ def generate():
 
         return redirect(url_for("home"))
 
+    if cursor is None:
+
+        flash("⚠️ Database connection is unavailable, so AI tasks could not be saved.", "warning")
+
+        return redirect(url_for("home"))
+
     ai_response = generate_ai_tasks(goal)
 
     if not ai_response:
@@ -304,31 +314,44 @@ def generate():
 
         return redirect(url_for("home"))
 
-    tasks = []
+    tasks = extract_task_items(ai_response)
 
-    for line in ai_response.split("\n"):
+    if not tasks:
 
-        line = line.strip()
+        flash("⚠️ AI did not return any task suggestions.", "warning")
 
-        if not line:
-            continue
+        return redirect(url_for("home"))
 
-        if line.startswith("-"):
-            line = line[1:].strip()
+    task_plan = build_task_plan_from_goal(goal)
 
-        elif line.startswith("*"):
-            line = line[1:].strip()
+    if task_plan:
 
-        elif "." in line[:3]:
-            line = line.split(".", 1)[1].strip()
+        planned_tasks = []
 
-        tasks.append(line)
+        for idx, task in enumerate(tasks):
+            item = task_plan[idx] if idx < len(task_plan) else task_plan[-1]
+            planned_tasks.append({
+                "title": task,
+                "priority": item.get("priority", "Medium"),
+                "due_date": item.get("due_date"),
+            })
+
+    else:
+
+        planned_tasks = [
+            {
+                "title": task,
+                "priority": "Medium",
+                "due_date": None,
+            }
+            for task in tasks
+        ]
 
     added = 0
 
     try:
 
-        for task in tasks:
+        for task in planned_tasks:
 
             cursor.execute(
                 """
@@ -336,18 +359,21 @@ def generate():
                 (
                     title,
                     priority,
+                    due_date,
                     status
                 )
                 VALUES
                 (
                     %s,
                     %s,
+                    %s,
                     %s
                 )
                 """,
                 (
-                    task,
-                    "Medium",
+                    task["title"],
+                    task["priority"],
+                    task.get("due_date"),
                     0
                 )
             )
@@ -369,6 +395,62 @@ def generate():
             "⚠️ Unable to save AI tasks.",
             "danger"
         )
+
+    return redirect(url_for("home"))
+
+
+# ==========================
+# Ask AI About Tasks
+# ==========================
+
+@app.route("/ask-ai", methods=["POST"])
+def ask_ai():
+
+    question = request.form.get("question", "").strip()
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+    if not question:
+        message = "Please ask a question about your tasks and I’ll help you plan them clearly."
+
+        if is_ajax:
+            return jsonify({"answer": message})
+
+        flash("⚠️ Please ask a question about your tasks.", "warning")
+        return redirect(url_for("home"))
+
+    tasks = []
+
+    if cursor is not None:
+
+        try:
+
+            cursor.execute(
+                "SELECT * FROM tasks ORDER BY id DESC"
+            )
+
+            tasks = cursor.fetchall()
+
+        except Error as e:
+
+            print("Ask AI Error:", e)
+
+    history = session.get("chat_history", [])
+
+    try:
+        answer = get_chat_response(question, tasks, history)
+    except Exception as e:
+        print("Ask AI Response Error:", e)
+        answer = "I’m sorry, I had trouble preparing a response. Please try again."
+
+    session["chat_history"] = history + [
+        {"role": "user", "content": question},
+        {"role": "assistant", "content": answer}
+    ]
+
+    if is_ajax:
+        return jsonify({"answer": answer})
+
+    flash("🤖 AI response ready.", "info")
 
     return redirect(url_for("home"))
 

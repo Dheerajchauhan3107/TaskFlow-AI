@@ -302,6 +302,63 @@
             </div>
 
         </section>
+
+        <section class="ai-section">
+
+            <div class="ai-card chat-card">
+
+                <h2>💬 AI Chat Assistant</h2>
+
+                <p>Chat naturally with your assistant about your tasks, plans, and priorities.</p>
+
+                <div class="chat-box">
+
+                    {% if chat_history %}
+
+                    {% for item in chat_history %}
+
+                    <div class="chat-message {{ item.role }}">
+
+                        <strong>{% if item.role == 'assistant' %}🤖 Assistant{% else %}You{% endif %}</strong>
+
+                        <p>{{ item.content }}</p>
+
+                    </div>
+
+                    {% endfor %}
+
+                    {% else %}
+
+                    <div class="chat-message assistant">
+
+                        <strong>🤖 Assistant</strong>
+
+                        <p>Hello! I’m here to help you with your tasks, priorities, and plans. Try saying: “hi”, “what
+                            tasks are pending?”, or “tell me more”.</p>
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+                <form id="chat-form" action="{{ url_for('ask_ai') }}" method="POST" class="chat-form">
+
+                    <textarea id="chat-input" name="question" rows="3" placeholder="Type your message here..."
+                        required></textarea>
+
+                    <button type="submit" class="ai-btn">
+
+                        💬 Send
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
         <!-- ==========================
                              Add Task
                         =========================== -->
@@ -463,6 +520,58 @@
             });
 
         }, 3000);
+
+        const chatForm = document.getElementById("chat-form");
+        const chatInput = document.getElementById("chat-input");
+        const chatBox = document.querySelector(".chat-box");
+
+        if (chatForm && chatInput && chatBox) {
+
+            chatForm.addEventListener("submit", function (event) {
+
+                event.preventDefault();
+
+                const question = chatInput.value.trim();
+
+                if (!question) {
+                    return;
+                }
+
+                const userMessage = document.createElement("div");
+                userMessage.className = "chat-message user";
+                userMessage.innerHTML = "<strong>You</strong><p>" + question + "</p>";
+                chatBox.appendChild(userMessage);
+
+                const assistantMessage = document.createElement("div");
+                assistantMessage.className = "chat-message assistant";
+                assistantMessage.innerHTML = "<strong>🤖 Assistant</strong><p>Thinking…</p>";
+                chatBox.appendChild(assistantMessage);
+
+                chatInput.value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                fetch(chatForm.action, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: new URLSearchParams(new FormData(chatForm)).toString()
+                })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        assistantMessage.innerHTML = "<strong>🤖 Assistant</strong><p>" + data.answer + "</p>";
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    })
+                    .catch(function () {
+                        assistantMessage.innerHTML = "<strong>🤖 Assistant</strong><p>Sorry, the assistant could not respond right now.</p>";
+                    });
+
+            });
+
+        }
 
     </script>
 
