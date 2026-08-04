@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
-import os
 from datetime import date
+from ai import generate_ai_tasks
+import os
 
 # ==========================
 # Load Environment Variables
@@ -11,9 +12,12 @@ from datetime import date
 
 load_dotenv()
 
+# ==========================
+# Flask App
+# ==========================
+
 app = Flask(__name__)
 
-# Flash Message Secret Key
 app.secret_key = "taskflow_ai_secret"
 
 # ==========================
@@ -24,51 +28,76 @@ db = None
 cursor = None
 
 try:
+
     db = mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         database=os.getenv("DB_NAME")
     )
+
     cursor = db.cursor(dictionary=True)
+
     print("✅ Connected to MySQL Successfully")
+
 except Error as e:
+
     print("❌ Database Connection Error:", e)
 
 
+# ==========================
+# Database Helper Functions
+# ==========================
+
 def fetch_query(query, params=()):
+
     if cursor is None:
+
         return []
 
     try:
+
         cursor.execute(query, params)
+
         return cursor.fetchall()
+
     except Error as e:
-        print("⚠️ Query error:", e)
+
+        print("⚠️ Query Error:", e)
+
         return []
 
 
 def fetch_count(query, params=()):
+
     if cursor is None:
+
         return 0
 
     try:
+
         cursor.execute(query, params)
+
         row = cursor.fetchone()
-        if row is None:
-            return 0
-        return next(iter(row.values()), 0)
-    except Error as e:
-        print("⚠️ Count query error:", e)
+
+        if row:
+
+            return list(row.values())[0]
+
         return 0
 
+    except Error as e:
 
-# ==========================
+        print("⚠️ Count Error:", e)
+
+        return 0
+        # ==========================
 # Home Page
 # ==========================
 
 @app.route("/")
 def home():
+
     today = date.today()
 
     search = request.args.get("search", "").strip()
@@ -76,7 +105,9 @@ def home():
     sort_by = request.args.get("sort", "newest")
 
     if cursor is None:
+
         flash("⚠️ Database connection is unavailable.", "danger")
+
         return render_template(
             "index.html",
             tasks=[],
@@ -84,36 +115,55 @@ def home():
             completed=0,
             pending=0,
             progress=0,
-            search=search,
-            filter_by=filter_by,
-            sort_by=sort_by,
             high_priority=0,
             due_today=0,
             overdue=0,
-            today=today,
+            search=search,
+            filter_by=filter_by,
+            sort_by=sort_by,
+            today=today
         )
 
+    # ==========================
+    # Search + Filter + Sorting
+    # ==========================
+
     query = "SELECT * FROM tasks WHERE 1=1"
+
     params = []
 
     if search:
+
         query += " AND title LIKE %s"
+
         params.append("%" + search + "%")
 
     if filter_by == "completed":
+
         query += " AND status=1"
+
     elif filter_by == "pending":
+
         query += " AND status=0"
+
     elif filter_by == "high":
+
         query += " AND priority='High'"
+
     elif filter_by == "medium":
+
         query += " AND priority='Medium'"
+
     elif filter_by == "low":
+
         query += " AND priority='Low'"
 
     if sort_by == "oldest":
+
         query += " ORDER BY id ASC"
+
     elif sort_by == "priority":
+
         query += """
         ORDER BY
         CASE
@@ -123,24 +173,41 @@ def home():
             ELSE 4
         END
         """
+
     elif sort_by == "due":
+
         query += " ORDER BY due_date ASC"
+
     else:
+
         query += " ORDER BY id DESC"
 
-    tasks = fetch_query(query, tuple(params))
+    tasks = fetch_query(
+        query,
+        tuple(params)
+    )
 
-    total = fetch_count("SELECT COUNT(*) AS total FROM tasks")
-    completed = fetch_count("SELECT COUNT(*) AS completed FROM tasks WHERE status=1")
+    # ==========================
+    # Dashboard Statistics
+    # ==========================
+
+    total = fetch_count(
+        "SELECT COUNT(*) FROM tasks"
+    )
+
+    completed = fetch_count(
+        "SELECT COUNT(*) FROM tasks WHERE status=1"
+    )
+
     pending = total - completed
 
     high_priority = fetch_count(
-        "SELECT COUNT(*) FROM tasks WHERE priority = 'High'"
+        "SELECT COUNT(*) FROM tasks WHERE priority='High'"
     )
 
     due_today = fetch_count(
         """
-        SELECT COUNT(*) AS due_today
+        SELECT COUNT(*)
         FROM tasks
         WHERE due_date=%s
         AND status=0
@@ -150,43 +217,160 @@ def home():
 
     overdue = fetch_count(
         """
-        SELECT COUNT(*) AS overdue
+        SELECT COUNT(*)
         FROM tasks
-        WHERE due_date < %s
+        WHERE due_date<%s
         AND status=0
         """,
         (today,)
     )
 
     progress = 0
+
     if total > 0:
-        progress = int((completed / total) * 100)
+
+        progress = int(
+            (completed / total) * 100
+        )
+
+    # ==========================
+    # Due Today / Overdue
+    # ==========================
 
     for task in tasks:
-        task["is_overdue"] = False
-        task["is_today"] = False
 
-        if task["due_date"] and task["status"] == 0:
-            if task["due_date"] < today:
-                task["is_overdue"] = True
-            elif task["due_date"] == today:
+        task["is_today"] = False
+        task["is_overdue"] = False
+
+        if task["status"] == 0 and task["due_date"]:
+
+            if task["due_date"] == today:
+
                 task["is_today"] = True
 
+            elif task["due_date"] < today:
+
+                task["is_overdue"] = True
+
     return render_template(
+
         "index.html",
+
         tasks=tasks,
+
         total=total,
+
         completed=completed,
+
         pending=pending,
+
         progress=progress,
-        search=search,
-        filter_by=filter_by,
-        sort_by=sort_by,
+
         high_priority=high_priority,
+
         due_today=due_today,
+
         overdue=overdue,
-        today=today,
+
+        search=search,
+
+        filter_by=filter_by,
+
+        sort_by=sort_by,
+
+        today=today
+
     )
+    # ==========================
+# AI Task Generator
+# ==========================
+
+@app.route("/generate", methods=["POST"])
+def generate():
+
+    goal = request.form.get("goal", "").strip()
+
+    if not goal:
+
+        flash("⚠️ Please enter your goal first.", "warning")
+
+        return redirect(url_for("home"))
+
+    ai_response = generate_ai_tasks(goal)
+
+    if not ai_response:
+
+        flash("⚠️ AI could not generate tasks.", "danger")
+
+        return redirect(url_for("home"))
+
+    tasks = []
+
+    for line in ai_response.split("\n"):
+
+        line = line.strip()
+
+        if not line:
+            continue
+
+        if line.startswith("-"):
+            line = line[1:].strip()
+
+        elif line.startswith("*"):
+            line = line[1:].strip()
+
+        elif "." in line[:3]:
+            line = line.split(".", 1)[1].strip()
+
+        tasks.append(line)
+
+    added = 0
+
+    try:
+
+        for task in tasks:
+
+            cursor.execute(
+                """
+                INSERT INTO tasks
+                (
+                    title,
+                    priority,
+                    status
+                )
+                VALUES
+                (
+                    %s,
+                    %s,
+                    %s
+                )
+                """,
+                (
+                    task,
+                    "Medium",
+                    0
+                )
+            )
+
+            added += 1
+
+        db.commit()
+
+        flash(
+            f"🤖 AI generated {added} tasks successfully!",
+            "success"
+        )
+
+    except Error as e:
+
+        print("AI Insert Error:", e)
+
+        flash(
+            "⚠️ Unable to save AI tasks.",
+            "danger"
+        )
+
+    return redirect(url_for("home"))
 
 
 # ==========================
@@ -195,57 +379,99 @@ def home():
 
 @app.route("/add", methods=["POST"])
 def add():
-    if cursor is None:
-        flash("⚠️ Database connection is unavailable.", "danger")
-        return redirect(url_for("home"))
 
     title = request.form.get("task", "").strip()
-    if title:
-        priority = request.form.get("priority") or "Medium"
-        due_date = request.form.get("due_date")
-        try:
-            cursor.execute(
-                """
-                INSERT INTO tasks (title, priority, due_date, status)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (title, priority, due_date if due_date else None, 0),
+
+    priority = request.form.get("priority") or "Medium"
+
+    due_date = request.form.get("due_date")
+
+    if not title:
+
+        flash("⚠️ Task title is required.", "warning")
+
+        return redirect(url_for("home"))
+
+    try:
+
+        cursor.execute(
+            """
+            INSERT INTO tasks
+            (
+                title,
+                priority,
+                due_date,
+                status
             )
-            db.commit()
-            flash("✅ Task Added Successfully!", "success")
-        except Error as e:
-            print("⚠️ Add task error:", e)
-            flash("⚠️ Unable to add task right now.", "danger")
-    else:
-        flash("⚠️ Task title is required.", "danger")
+            VALUES
+            (
+                %s,
+                %s,
+                %s,
+                %s
+            )
+            """,
+            (
+                title,
+                priority,
+                due_date if due_date else None,
+                0
+            )
+        )
+
+        db.commit()
+
+        flash(
+            "✅ Task Added Successfully!",
+            "success"
+        )
+
+    except Error as e:
+
+        print(e)
+
+        flash(
+            "⚠️ Unable to add task.",
+            "danger"
+        )
 
     return redirect(url_for("home"))
 
 
 # ==========================
-# Toggle Complete
+# Toggle Task
 # ==========================
 
 @app.route("/toggle/<int:id>")
 def toggle(id):
-    if cursor is None:
-        flash("⚠️ Database connection is unavailable.", "danger")
-        return redirect(url_for("home"))
 
     try:
+
         cursor.execute(
             """
             UPDATE tasks
             SET status = NOT status
             WHERE id=%s
             """,
-            (id,),
+            (id,)
         )
+
         db.commit()
-        flash("✔️ Task Status Updated!", "info")
+
+        flash(
+            "✔️ Task Updated Successfully!",
+            "info"
+        )
+
     except Error as e:
-        print("⚠️ Toggle task error:", e)
-        flash("⚠️ Unable to update task status right now.", "danger")
+
+        print(e)
+
+        flash(
+            "⚠️ Unable to update task.",
+            "danger"
+        )
+
     return redirect(url_for("home"))
 
 
@@ -255,84 +481,145 @@ def toggle(id):
 
 @app.route("/delete/<int:id>")
 def delete(id):
-    if cursor is None:
-        flash("⚠️ Database connection is unavailable.", "danger")
-        return redirect(url_for("home"))
 
     try:
+
         cursor.execute(
             """
             DELETE FROM tasks
             WHERE id=%s
             """,
-            (id,),
+            (id,)
         )
+
         db.commit()
-        flash("🗑️ Task Deleted Successfully!", "danger")
+
+        flash(
+            "🗑️ Task Deleted Successfully!",
+            "danger"
+        )
+
     except Error as e:
-        print("⚠️ Delete task error:", e)
-        flash("⚠️ Unable to delete task right now.", "danger")
+
+        print(e)
+
+        flash(
+            "⚠️ Unable to delete task.",
+            "danger"
+        )
+
     return redirect(url_for("home"))
-
-
-# ==========================
+    # ==========================
 # Edit Task
 # ==========================
 
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
+
+    if cursor is None:
+
+        flash("⚠️ Database connection unavailable.", "danger")
+
+        return redirect(url_for("home"))
+
     if request.method == "POST":
+
         title = request.form.get("task", "").strip()
+
         priority = request.form.get("priority") or "Medium"
+
         due_date = request.form.get("due_date")
 
-        if title:
-            if cursor is None:
-                flash("⚠️ Database connection is unavailable.", "danger")
-                return redirect(url_for("home"))
+        if not title:
 
-            try:
-                cursor.execute(
-                    """
-                    UPDATE tasks
-                    SET
-                        title=%s,
-                        priority=%s,
-                        due_date=%s
-                    WHERE id=%s
-                    """,
-                    (
-                        title,
-                        priority,
-                        due_date if due_date else None,
-                        id,
-                    ),
+            flash(
+                "⚠️ Task title is required.",
+                "warning"
+            )
+
+            return redirect(url_for("edit", id=id))
+
+        try:
+
+            cursor.execute(
+                """
+                UPDATE tasks
+
+                SET
+
+                    title=%s,
+
+                    priority=%s,
+
+                    due_date=%s
+
+                WHERE id=%s
+                """,
+                (
+                    title,
+                    priority,
+                    due_date if due_date else None,
+                    id
                 )
-                db.commit()
-                flash("✏️ Task Updated Successfully!", "warning")
-                return redirect(url_for("home"))
-            except Error as e:
-                print("⚠️ Edit task error:", e)
-                flash("⚠️ Unable to update task right now.", "danger")
-                return redirect(url_for("home"))
+            )
 
-        flash("⚠️ Task title is required.", "danger")
+            db.commit()
+
+            flash(
+                "✏️ Task Updated Successfully!",
+                "success"
+            )
+
+            return redirect(url_for("home"))
+
+        except Error as e:
+
+            print("Edit Error:", e)
+
+            flash(
+                "⚠️ Unable to update task.",
+                "danger"
+            )
+
+            return redirect(url_for("edit", id=id))
+
+    try:
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM tasks
+            WHERE id=%s
+            """,
+            (id,)
+        )
+
+        task = cursor.fetchone()
+
+    except Error as e:
+
+        print("Fetch Error:", e)
+
+        flash(
+            "⚠️ Unable to fetch task.",
+            "danger"
+        )
+
         return redirect(url_for("home"))
-
-    cursor.execute(
-        """
-        SELECT *
-        FROM tasks
-        WHERE id=%s
-        """,
-        (id,),
-    )
-    task = cursor.fetchone()
 
     if not task:
+
+        flash(
+            "⚠️ Task not found.",
+            "warning"
+        )
+
         return redirect(url_for("home"))
 
-    return render_template("edit.html", task=task)
+    return render_template(
+        "edit.html",
+        task=task
+    )
 
 
 # ==========================
@@ -340,4 +627,7 @@ def edit(id):
 # ==========================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+
+    app.run(
+        debug=True
+    )
