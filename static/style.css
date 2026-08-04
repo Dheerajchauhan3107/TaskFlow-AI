@@ -70,7 +70,7 @@
     border-radius:10px;
     color:white;
     font-weight:bold;
-    animation:fadeIn .4s ease;
+    animation:slideDown .4s ease;
 
 }
 
@@ -99,6 +99,34 @@
 }
 
 
+/* ===========================
+   Dashboard Cards
+=========================== */
+
+.cards{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:20px;
+
+}
+
+.card{
+
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    transition:.3s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-5px);
+
+}
 /* ===========================
    Filter Buttons
 =========================== */
@@ -138,6 +166,8 @@
     color:white;
 
 }
+
+
 /* ===========================
    Better Buttons
 =========================== */
@@ -200,8 +230,6 @@
     gap:6px;
 
 }
-
-
 /* ===========================
    Task Card Animation
 =========================== */
@@ -294,6 +322,42 @@
     margin-top:4px;
 
 }
+
+
+/* ===========================
+   Overdue Badge
+=========================== */
+
+.overdue-badge{
+
+    display:inline-block;
+    margin-top:8px;
+    padding:5px 12px;
+    background:#ffebee;
+    color:#d63031;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+
+}
+
+
+/* ===========================
+   Due Today Badge
+=========================== */
+
+.today-badge{
+
+    display:inline-block;
+    margin-top:8px;
+    padding:5px 12px;
+    background:#fff3cd;
+    color:#e67e22;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+
+}
 /* ===========================
    Empty State
 =========================== */
@@ -327,6 +391,14 @@
 =========================== */
 
 @media(max-width:768px){
+
+    /* Dashboard */
+
+    .cards{
+
+        grid-template-columns:1fr;
+
+    }
 
     /* Search */
 
@@ -397,8 +469,6 @@
     }
 
 }
-
-
 /* ===========================
    Smooth Scroll
 =========================== */
@@ -447,6 +517,7 @@ html{
 .alert{
 
     animation:slideDown .4s ease;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
 
 }
 
@@ -465,5 +536,61 @@ html{
         transform:translateY(0);
 
     }
+
+}
+
+
+/* ===========================
+   Overdue Animation
+=========================== */
+
+.overdue-badge{
+
+    animation:pulse 1.5s infinite;
+
+}
+
+@keyframes pulse{
+
+    0%{
+
+        transform:scale(1);
+
+    }
+
+    50%{
+
+        transform:scale(1.08);
+
+    }
+
+    100%{
+
+        transform:scale(1);
+
+    }
+
+}
+
+
+/* ===========================
+   Card Hover Enhancement
+=========================== */
+
+.card:hover{
+
+    box-shadow:0 12px 25px rgba(9,132,227,.15);
+
+}
+
+
+/* ===========================
+   Button Transition
+=========================== */
+
+button,
+a{
+
+    transition:all .3s ease;
 
 }

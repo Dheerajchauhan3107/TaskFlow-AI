@@ -5,8 +5,7 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>TaskFlow AI</title>
 
@@ -18,6 +17,26 @@
 <body>
 
 <div class="container">
+
+    <!-- Flash Messages -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="alert {{ category }}">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
 
     <!-- Header -->
 
@@ -35,7 +54,7 @@
 
         <div class="card">
 
-            <h2>📋 Total Tasks</h2>
+            <h2>📋 Total</h2>
 
             <span>{{ total }}</span>
 
@@ -57,6 +76,30 @@
 
         </div>
 
+        <div class="card">
+
+            <h2>🔥 High Priority</h2>
+
+            <span>{{ high_priority }}</span>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📅 Due Today</h2>
+
+            <span>{{ due_today }}</span>
+
+        </div>
+
+        <div class="card">
+
+            <h2>🚨 Overdue</h2>
+
+            <span>{{ overdue }}</span>
+
+        </div>
+
     </section>
 
     <!-- Progress -->
@@ -67,8 +110,9 @@
 
         <div class="progress-bar">
 
-            <div class="progress-fill"
-                 style="width: {{ progress }}%;">
+            <div
+                class="progress-fill"
+                style="width: {{ progress }}%;">
 
             </div>
 
@@ -77,13 +121,11 @@
         <p>{{ progress }}% Completed</p>
 
     </section>
-
-    <!-- Search -->
+        <!-- Search + Sorting -->
 
     <section class="search-section">
 
-        <form action="{{ url_for('home') }}"
-              method="GET">
+        <form action="{{ url_for('home') }}" method="GET">
 
             <input
                 type="text"
@@ -91,11 +133,40 @@
                 placeholder="🔍 Search tasks..."
                 value="{{ search }}">
 
+            <input
+                type="hidden"
+                name="filter"
+                value="{{ filter_by }}">
+
+            <select name="sort">
+
+                <option value="newest"
+                    {% if sort_by=="newest" %}selected{% endif %}>
+                    🆕 Newest
+                </option>
+
+                <option value="oldest"
+                    {% if sort_by=="oldest" %}selected{% endif %}>
+                    📜 Oldest
+                </option>
+
+                <option value="priority"
+                    {% if sort_by=="priority" %}selected{% endif %}>
+                    🔴 Priority
+                </option>
+
+                <option value="due"
+                    {% if sort_by=="due" %}selected{% endif %}>
+                    📅 Due Date
+                </option>
+
+            </select>
+
             <button
                 type="submit"
                 class="search-btn">
 
-                🔍 Search
+                Apply
 
             </button>
 
@@ -103,38 +174,38 @@
 
     </section>
 
-    <!-- Filters -->
+    <!-- Filter -->
 
     <section class="filter-section">
 
-        <a href="{{ url_for('home') }}"
+        <a href="{{ url_for('home', search=search, sort=sort_by) }}"
            class="filter-btn {% if filter_by=='' %}active{% endif %}">
-           All
+            All
         </a>
 
-        <a href="{{ url_for('home', filter='completed') }}"
+        <a href="{{ url_for('home', filter='completed', search=search, sort=sort_by) }}"
            class="filter-btn {% if filter_by=='completed' %}active{% endif %}">
-           ✅ Completed
+            ✅ Completed
         </a>
 
-        <a href="{{ url_for('home', filter='pending') }}"
+        <a href="{{ url_for('home', filter='pending', search=search, sort=sort_by) }}"
            class="filter-btn {% if filter_by=='pending' %}active{% endif %}">
-           ⏳ Pending
+            ⏳ Pending
         </a>
 
-        <a href="{{ url_for('home', filter='high') }}"
+        <a href="{{ url_for('home', filter='high', search=search, sort=sort_by) }}"
            class="filter-btn {% if filter_by=='high' %}active{% endif %}">
-           🔴 High
+            🔴 High
         </a>
 
-        <a href="{{ url_for('home', filter='medium') }}"
+        <a href="{{ url_for('home', filter='medium', search=search, sort=sort_by) }}"
            class="filter-btn {% if filter_by=='medium' %}active{% endif %}">
-           🟡 Medium
+            🟡 Medium
         </a>
 
-        <a href="{{ url_for('home', filter='low') }}"
+        <a href="{{ url_for('home', filter='low', search=search, sort=sort_by) }}"
            class="filter-btn {% if filter_by=='low' %}active{% endif %}">
-           🟢 Low
+            🟢 Low
         </a>
 
     </section>
@@ -143,8 +214,7 @@
 
     <section class="add-task">
 
-        <form action="{{ url_for('add') }}"
-              method="POST">
+        <form action="{{ url_for('add') }}" method="POST">
 
             <input
                 type="text"
@@ -191,7 +261,8 @@
         {% if tasks %}
 
         {% for task in tasks %}
-                <div class="task-card">
+
+        <div class="task-card">
 
             <div class="task-left">
 
@@ -209,6 +280,7 @@
                         {{ task.title }}
 
                     </span>
+                                        <!-- Priority -->
 
                     <span class="priority {{ task.priority|lower if task.priority else 'medium' }}">
 
@@ -232,6 +304,8 @@
 
                     </span>
 
+                    <!-- Due Date -->
+
                     {% if task.due_date %}
 
                     <span class="due-date">
@@ -242,9 +316,35 @@
 
                     {% endif %}
 
+                    <!-- Overdue -->
+
+                    {% if task.is_overdue %}
+
+                    <span class="overdue-badge">
+
+                        🚨 OVERDUE
+
+                    </span>
+
+                    {% endif %}
+
+                    <!-- Due Today -->
+
+                    {% if task.is_today %}
+
+                    <span class="today-badge">
+
+                        📅 DUE TODAY
+
+                    </span>
+
+                    {% endif %}
+
                 </div>
 
             </div>
+
+            <!-- Actions -->
 
             <div class="actions">
 
@@ -310,6 +410,32 @@
     </section>
 
 </div>
+
+<!-- Auto Hide Flash Messages -->
+
+<script>
+
+setTimeout(function(){
+
+    const alerts = document.querySelectorAll(".alert");
+
+    alerts.forEach(function(alert){
+
+        alert.style.transition = "opacity .5s ease";
+
+        alert.style.opacity = "0";
+
+        setTimeout(function(){
+
+            alert.remove();
+
+        },500);
+
+    });
+
+},3000);
+
+</script>
 
 </body>
 
