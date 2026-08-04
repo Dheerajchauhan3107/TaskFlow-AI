@@ -44,7 +44,18 @@
          Header
     =========================== -->
 
-        <header>
+        <header class="page-header">
+
+            <div class="header-actions">
+
+                <button id="darkModeToggle" class="theme-toggle" type="button" aria-label="Toggle dark mode"
+                    aria-pressed="false">
+
+                    🌙 Dark Mode
+
+                </button>
+
+            </div>
 
             <h1>🚀 TaskFlow AI</h1>
 
@@ -494,6 +505,8 @@
         </footer>
 
     </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 
     <!-- ==========================
                                              Auto Hide Flash Messages

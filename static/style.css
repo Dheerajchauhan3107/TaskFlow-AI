@@ -46,6 +46,42 @@ header {
 
 }
 
+.page-header {
+
+    position: relative;
+
+}
+
+.header-actions {
+
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+
+}
+
+.theme-toggle {
+
+    background: #fff;
+    border: 1px solid #dfe6e9;
+    color: #2d3436;
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+
+}
+
+.theme-toggle:hover {
+
+    background: #0984e3;
+    color: #fff;
+    border-color: #0984e3;
+
+}
+
 header h1 {
 
     font-size: 42px;
@@ -1017,7 +1053,8 @@ body.dark .card,
 body.dark .task-card,
 body.dark .progress-card,
 body.dark .footer,
-body.dark .empty {
+body.dark .empty,
+body.dark .ai-card {
 
     background: #1e1e1e;
     color: #f5f6fa;
@@ -1046,6 +1083,43 @@ body.dark .filter-btn {
 body.dark .filter-btn.active {
 
     background: #0984e3;
+
+}
+
+body.dark .theme-toggle {
+
+    background: #2d3436;
+    color: #ffffff;
+    border-color: #4b4b4b;
+
+}
+
+body.dark .theme-toggle:hover {
+
+    background: #0984e3;
+
+}
+
+body.dark header h1 {
+
+    color: #74b9ff;
+
+}
+
+body.dark header p,
+body.dark .card h2,
+body.dark .progress-card h2,
+body.dark .task-section h2,
+body.dark .empty h3,
+body.dark .due-date {
+
+    color: #dfe6e9;
+
+}
+
+body.dark .completed {
+
+    color: #7f8c8d;
 
 }
 

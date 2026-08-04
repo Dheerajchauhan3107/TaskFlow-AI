@@ -14,46 +14,54 @@
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <header>
+        <header class="page-header">
 
-        <h1>✏️ Edit Task</h1>
+            <div class="header-actions">
 
-        <p>Update your task details below.</p>
+                <button id="darkModeToggle" class="theme-toggle" type="button" aria-label="Toggle dark mode"
+                    aria-pressed="false">
 
-    </header>
+                    🌙 Dark Mode
 
-    <section class="add-task">
-
-        <form action="{{ url_for('edit', id=task.id) }}" method="POST">
-
-            <input
-                type="text"
-                name="task"
-                value="{{ task.title }}"
-                placeholder="Enter updated task..."
-                required
-                autofocus>
-
-            <div class="actions">
-
-                <button type="submit" class="add-btn">
-                    💾 Update Task
                 </button>
-
-                <a href="{{ url_for('home') }}" class="cancel-btn">
-                    ❌ Cancel
-                </a>
 
             </div>
 
-        </form>
+            <h1>✏️ Edit Task</h1>
 
-    </section>
+            <p>Update your task details below.</p>
 
-</div>
+        </header>
+
+        <section class="add-task">
+
+            <form action="{{ url_for('edit', id=task.id) }}" method="POST">
+
+                <input type="text" name="task" value="{{ task.title }}" placeholder="Enter updated task..." required
+                    autofocus>
+
+                <div class="actions">
+
+                    <button type="submit" class="add-btn">
+                        💾 Update Task
+                    </button>
+
+                    <a href="{{ url_for('home') }}" class="cancel-btn">
+                        ❌ Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
 
 </body>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </html>
